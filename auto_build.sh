@@ -11,6 +11,17 @@ compiler="x86"
 ########################################################################
 #      函数定义
 ########################################################################
+if [ "$(uname)" = "Linux" ]; then
+    echo "这是 Linux 系统"
+elif [ "$(uname)" = "Darwin" ]; then
+    echo "这是 macOS 系统"
+elif [ "$(expr substr $(uname -s) 1 5)" = "MINGW" ] || [ "$(expr substr $(uname -s) 1 5)" = "MSYS" ]; then
+    echo "这是 Windows 系统"
+else
+    echo "未知操作系统"
+fi
+
+
 
 # 字符串精确匹配 字符串数组 字符串
 function Contains() {
