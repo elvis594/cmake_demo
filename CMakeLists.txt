@@ -20,7 +20,7 @@ include(toolchain)
 include(compiler_config)
 
 # 项目名称
-project(infra)
+project(cmake_demo)
 
 #第三方库
 include(${ROOT_DIR}/third_party/third_party.cmake)
@@ -42,6 +42,6 @@ function(_add_subdirectory dir)
     endif()
 endfunction(_add_subdirectory)
 
-_add_subdirectory(${ROOT_DIR}/example)
+_add_subdirectory(${ROOT_DIR}/src)
 
 

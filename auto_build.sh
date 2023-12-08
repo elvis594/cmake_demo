@@ -6,8 +6,11 @@ build_thread_num=8
 # 设置交叉编译链列表
 g_compiler_list=(
     "x86"
+    "esp32"
+    "win"
 )
-compiler="x86"
+
+make_tool="make"
 ########################################################################
 #      函数定义
 ########################################################################
@@ -17,8 +20,10 @@ elif [ "$(uname)" = "Darwin" ]; then
     echo "这是 macOS 系统"
 elif [ "$(expr substr $(uname -s) 1 5)" = "MINGW" ] || [ "$(expr substr $(uname -s) 1 5)" = "MSYS" ]; then
     echo "这是 Windows 系统"
+    make_tool="Ninja"
 else
     echo "未知操作系统"
+    exit 1
 fi
 
 
@@ -63,22 +68,11 @@ function SelectCompiler(){
 function Build(){
     if [ ! -d "${current_path}/build_${compiler}" ];then
         mkdir ${current_path}/build_${compiler}
-        cd ${current_path}/build_${compiler} && cmake .. ${compiler_flag}=ON
-        make -j${build_thread_num}
+        cd ${current_path}/build_${compiler} && cmake .. ${make_tool_flag} ${compiler_flag}
+        ${make_tool} -j${build_thread_num}
     else
         cd ${current_path}/build_${compiler}
-        make -j${build_thread_num}
-    fi
-}
-
-function BuildTarget(){
-    if [ ! -d "${current_path}/build_${compiler}" ];then
-        mkdir ${current_path}/build_${compiler}
-        cd ${current_path}/build_${compiler} && cmake .. ${compiler_flag}=ON -DBUILD_TESTS_PROJECT=ON
-        make $1 -j${build_thread_num}
-    else
-        cd ${current_path}/build_${compiler}
-        make $1 -j${build_thread_num}
+        ${make_tool} -j${build_thread_num}
     fi
 }
 
@@ -86,7 +80,7 @@ function BuildTarget(){
 function Clean(){
     if [ -d "${current_path}/build_${compiler}" ];then
         cd ${current_path}/build_${compiler}
-        make clean
+        ${make_tool} clean
         cd ..
         rm -rf ${current_path}/build_${compiler}
     fi
@@ -135,9 +129,12 @@ if [ $(Contains "${g_compiler_list[@]}" "${compiler}") == "n" ]; then
 fi
 
 # 设置编译选项
-compiler_flag="-DBUILD_FOR_${compiler^^}"
+
+compiler_flag="-DTOOL_CHAIN=${compiler}"
+make_tool_flag="-G ${make_tool}"
 
 echo "compiler_flag = ${compiler_flag}"
+echo "make_tool_flag = ${make_tool_flag}"
 
 #############################设置编译器end###########################################
 
